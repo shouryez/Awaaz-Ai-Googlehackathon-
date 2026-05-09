@@ -9,7 +9,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setThemeState] = useState<Theme>("dark");
 
   useEffect(() => {
-    const stored = (typeof window !== "undefined" && localStorage.getItem("janseva-theme")) as Theme | null;
+    const stored = (typeof window !== "undefined" && localStorage.getItem("awaaz-theme")) as Theme | null;
     if (stored === "light" || stored === "dark") setThemeState(stored);
   }, []);
 
@@ -18,7 +18,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     const root = document.documentElement;
     root.classList.remove("dark", "light");
     root.classList.add(theme);
-    try { localStorage.setItem("janseva-theme", theme); } catch {}
+    try { localStorage.setItem("awaaz-theme", theme); } catch {}
   }, [theme]);
 
   return (

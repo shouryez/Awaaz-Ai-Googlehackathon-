@@ -33,7 +33,7 @@ export function GeneratedOutput({
   const dynamicContent: Record<string, string> = {
     wa: drafts?.whatsapp || `Namaste, reporting an issue at ${intent?.location || ward}.`,
     letter: drafts?.letter || `To,\nThe Commissioner,\n\nSubject: Formal Petition regarding civic issues.\n\nRespected Sir,\nI am reporting a problem at ${intent?.location || ward}. It has been occurring for ${intent?.duration || "some time"} and is affecting the community by ${intent?.impact || "causing safety concerns"}.\n\nRegards,\nCitizen`,
-    email: drafts?.email || `Subject: Urgent Grievance - ${intent?.location || ward}\n\nDear Sir,\n\nI am formally reporting a civic issue. Details are attached.\n\nRegards,\nJanSevaAI`,
+    email: drafts?.email || `Subject: Urgent Grievance - ${intent?.location || ward}\n\nDear Sir,\n\nI am formally reporting a civic issue. Details are attached.\n\nRegards,\nAwaazAI`,
   };
 
   const contact = routing?.contact || "+91 98456 77821";

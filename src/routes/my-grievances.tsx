@@ -9,7 +9,7 @@ import { jsPDF } from "jspdf";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/my-grievances")({
-  head: () => ({ meta: [{ title: "My Grievances — JanSevaAI" }, { name: "description", content: "Track every complaint you've raised." }] }),
+  head: () => ({ meta: [{ title: "My Grievances — AwaazAI" }, { name: "description", content: "Track every complaint you've raised." }] }),
   component: MyGrievances,
 });
 
@@ -28,11 +28,11 @@ function MyGrievances() {
       const doc = new jsPDF();
       
       // Add header
-      doc.setFillColor(26, 86, 196); // JanSeva Blue
+      doc.setFillColor(26, 86, 196); // Awaaz Blue
       doc.rect(0, 0, 210, 40, "F");
       doc.setTextColor(255, 255, 255);
       doc.setFontSize(22);
-      doc.text("JanSevaAI - Grievance Summary", 15, 25);
+      doc.text("AwaazAI - Grievance Summary", 15, 25);
       
       // Add content
       doc.setTextColor(0, 0, 0);
@@ -63,7 +63,7 @@ function MyGrievances() {
       // Footer
       doc.setFontSize(8);
       doc.setTextColor(150, 150, 150);
-      doc.text("This is an electronically generated document by JanSevaAI Platform.", 15, 280);
+      doc.text("This is an electronically generated document by AwaazAI Platform.", 15, 280);
       
       // Use Blob for better compatibility
       const blob = doc.output("blob");
@@ -84,7 +84,7 @@ function MyGrievances() {
   };
 
   const shareGrievance = async (g: any) => {
-    const text = `Grievance ${g.id}: ${g.title} at ${g.location}. Status: ${g.status}. Track it on JanSevaAI.`;
+    const text = `Grievance ${g.id}: ${g.title} at ${g.location}. Status: ${g.status}. Track it on AwaazAI.`;
     if (navigator.share) {
       try { await navigator.share({ title: "Civic Grievance", text, url: window.location.href }); } catch (e) {}
     } else {

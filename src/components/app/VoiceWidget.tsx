@@ -1,5 +1,5 @@
 import Vapi from "@vapi-ai/web";
-import { Mic, MicOff, Loader2, PhoneOff, AlertCircle } from "lucide-react";
+import { Mic, MicOff, Loader2, PhoneOff, AlertCircle, Camera, X, Image } from "lucide-react";
 import { useEffect, useRef, useState, useCallback } from "react";
 
 /* ─── Types ─────────────────────────────────────────────── */
@@ -26,18 +26,22 @@ function getVapi(): Vapi | null {
 export function VoiceWidget({ 
   onTranscript, 
   onCallStart, 
-  onCallEnd 
+  onCallEnd,
+  onPhotoChange,
 }: { 
   onTranscript: (t: string | ((prev: string) => string)) => void;
   onCallStart?: () => void;
   onCallEnd?: (fullTranscript: string) => void;
+  onPhotoChange?: (photo: string | null) => void;
 }) {
   const [callState, setCallState] = useState<CallState>("idle");
   const [lines, setLines] = useState<TranscriptLine[]>([]);
-  const [volume, setVolume] = useState(0); // 0–1 from Vapi
+  const [volume, setVolume] = useState(0);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [voicePhoto, setVoicePhoto] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const vapiRef = useRef<Vapi | null>(null);
+  const photoInputRef = useRef<HTMLInputElement>(null);
 
   /* ── Register Vapi event listeners once ─────────────────── */
   useEffect(() => {
@@ -280,6 +284,51 @@ export function VoiceWidget({
           ))}
         </div>
       )}
+
+      {/* ── Photo attach strip ── */}
+      <div className="mt-4 w-full max-w-xs">
+        {voicePhoto ? (
+          <div className="relative rounded-xl overflow-hidden border border-blue-500/30">
+            <img src={voicePhoto} alt="Attached complaint photo" className="w-full max-h-32 object-cover" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+            <div className="absolute bottom-2 left-3 text-[11px] text-white font-medium flex items-center gap-1.5">
+              <Image className="h-3 w-3 text-blue-300" /> Reference photo attached
+            </div>
+            <button
+              onClick={() => { setVoicePhoto(null); onPhotoChange?.(null); }}
+              className="absolute top-2 right-2 h-6 w-6 rounded-full bg-black/70 grid place-items-center hover:bg-red-500/80 transition-colors"
+            >
+              <X className="h-3 w-3 text-white" />
+            </button>
+          </div>
+        ) : (
+          <button
+            onClick={() => photoInputRef.current?.click()}
+            className="w-full h-10 rounded-xl glass border border-dashed border-white/20 hover:border-blue-500/50 hover:bg-blue-500/5 transition-all flex items-center justify-center gap-2 text-[var(--text-secondary)] hover:text-blue-400 text-sm"
+          >
+            <Camera className="h-4 w-4" />
+            Attach a photo of the problem
+          </button>
+        )}
+        <input
+          ref={photoInputRef}
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={(e) => {
+            const file = e.target.files?.[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = () => {
+              const dataUrl = String(reader.result);
+              setVoicePhoto(dataUrl);
+              onPhotoChange?.(dataUrl);
+            };
+            reader.readAsDataURL(file);
+            e.target.value = "";
+          }}
+        />
+      </div>
 
       {/* ── "Powered by Vapi" badge ── */}
       <div className="mt-4 text-[10px] uppercase tracking-[0.2em] text-[var(--text-muted)] flex items-center gap-1.5">

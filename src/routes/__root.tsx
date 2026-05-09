@@ -4,6 +4,7 @@ import appCss from "../styles.css?url";
 import { Sidebar, MobileBar } from "@/components/layout/Sidebar";
 import { TopBar } from "@/components/layout/TopBar";
 import { PageShell } from "@/components/layout/PageShell";
+import { AnimatedBackground } from "@/components/layout/AnimatedBackground";
 import { ThemeProvider } from "@/lib/theme";
 import { AuthProvider } from "@/lib/auth";
 import { APIProvider } from "@vis.gl/react-google-maps";
@@ -43,7 +44,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "JanSevaAI — Civic Grievance Intelligence" },
+      { title: "AwaazAI — Civic Grievance Intelligence" },
       { name: "description", content: "AI-powered grievance resolution for 1.4 billion citizens." },
     ],
     links: [{ rel: "stylesheet", href: appCss }],
@@ -77,6 +78,7 @@ function RootComponent() {
                 <main className="min-h-screen"><Outlet /></main>
               ) : (
                 <div className="min-h-screen relative">
+                  <AnimatedBackground />
                   <Sidebar />
                   <div className="md:pl-[260px] min-h-screen flex flex-col">
                     <TopBar />

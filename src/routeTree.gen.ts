@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as RewardsRouteImport } from './routes/rewards'
 import { Route as MyGrievancesRouteImport } from './routes/my-grievances'
 import { Route as HeatmapRouteImport } from './routes/heatmap'
 import { Route as FileComplaintRouteImport } from './routes/file-complaint'
@@ -16,6 +17,11 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 
+const RewardsRoute = RewardsRouteImport.update({
+  id: '/rewards',
+  path: '/rewards',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MyGrievancesRoute = MyGrievancesRouteImport.update({
   id: '/my-grievances',
   path: '/my-grievances',
@@ -54,6 +60,7 @@ export interface FileRoutesByFullPath {
   '/file-complaint': typeof FileComplaintRoute
   '/heatmap': typeof HeatmapRoute
   '/my-grievances': typeof MyGrievancesRoute
+  '/rewards': typeof RewardsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -62,6 +69,7 @@ export interface FileRoutesByTo {
   '/file-complaint': typeof FileComplaintRoute
   '/heatmap': typeof HeatmapRoute
   '/my-grievances': typeof MyGrievancesRoute
+  '/rewards': typeof RewardsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -71,6 +79,7 @@ export interface FileRoutesById {
   '/file-complaint': typeof FileComplaintRoute
   '/heatmap': typeof HeatmapRoute
   '/my-grievances': typeof MyGrievancesRoute
+  '/rewards': typeof RewardsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -81,6 +90,7 @@ export interface FileRouteTypes {
     | '/file-complaint'
     | '/heatmap'
     | '/my-grievances'
+    | '/rewards'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -89,6 +99,7 @@ export interface FileRouteTypes {
     | '/file-complaint'
     | '/heatmap'
     | '/my-grievances'
+    | '/rewards'
   id:
     | '__root__'
     | '/'
@@ -97,6 +108,7 @@ export interface FileRouteTypes {
     | '/file-complaint'
     | '/heatmap'
     | '/my-grievances'
+    | '/rewards'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -106,10 +118,18 @@ export interface RootRouteChildren {
   FileComplaintRoute: typeof FileComplaintRoute
   HeatmapRoute: typeof HeatmapRoute
   MyGrievancesRoute: typeof MyGrievancesRoute
+  RewardsRoute: typeof RewardsRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/rewards': {
+      id: '/rewards'
+      path: '/rewards'
+      fullPath: '/rewards'
+      preLoaderRoute: typeof RewardsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/my-grievances': {
       id: '/my-grievances'
       path: '/my-grievances'
@@ -162,6 +182,7 @@ const rootRouteChildren: RootRouteChildren = {
   FileComplaintRoute: FileComplaintRoute,
   HeatmapRoute: HeatmapRoute,
   MyGrievancesRoute: MyGrievancesRoute,
+  RewardsRoute: RewardsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

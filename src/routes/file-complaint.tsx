@@ -10,10 +10,13 @@ import { GeneratedOutput } from "@/components/app/GeneratedOutput";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { analyseGrievance, type AnalysisResult } from "@/lib/gemini";
+import { sendComplaintRegisteredSms } from "@/lib/sms";
 import { GeminiChatBox } from "@/components/app/GeminiChatBox";
+import { toast } from "sonner";
+
 
 export const Route = createFileRoute("/file-complaint")({
-  head: () => ({ meta: [{ title: "File a Complaint — JanSevaAI" }, { name: "description", content: "Speak in any Indian language. AI files your grievance in seconds." }] }),
+  head: () => ({ meta: [{ title: "File a Complaint — AwaazAI" }, { name: "description", content: "Speak in any Indian language. AI files your grievance in seconds." }] }),
   component: FileComplaint,
 });
 
@@ -33,7 +36,7 @@ const CATEGORIES_MAP: Record<string, (typeof types)[number]> = {
 function FileComplaint() {
   const [step, setStep] = useState(0);
   const [text, setText] = useState("");
-  const [photo, setPhoto] = useState<string | null>(null);
+  const [photo, setPhoto] = useState<string | null>(null); // dataURL from either agent
   const [detected, setDetected] = useState<string | null>(null);
   const [showChips, setShowChips] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -95,13 +98,11 @@ function FileComplaint() {
     
     setIsSubmitting(true);
     
-    // Attempt to extract ward/location from text if not already set or to override
     let finalWard = detectedWard ? `${detectedWard} Ward` : ((user.user_metadata?.ward as string) ?? null);
     let finalLocation = detectedWard || ((user.user_metadata?.address as string) ?? null);
     let lat = null;
     let lng = null;
 
-    // Fallback to live geolocation if no address/ward was detected
     if (!detectedWard && navigator.geolocation) {
       try {
         const pos = await new Promise<GeolocationPosition>((resolve, reject) => {
@@ -109,10 +110,34 @@ function FileComplaint() {
         });
         lat = pos.coords.latitude;
         lng = pos.coords.longitude;
-        // Optional: reverse geocode here if we had a service, but for now we'll just store coordinates
         if (!finalLocation) finalLocation = `GPS: ${lat.toFixed(4)}, ${lng.toFixed(4)}`;
       } catch (e) {
         console.warn("Geolocation fallback failed:", e);
+      }
+    }
+
+    // ── Upload photo to Supabase Storage if present ──────────
+    let imageUrl: string | null = null;
+    if (photo) {
+      try {
+        // Convert dataURL to Blob
+        const res = await fetch(photo);
+        const blob = await res.blob();
+        const ext = blob.type.split("/")[1] || "jpg";
+        const filePath = `${user.id}/${Date.now()}.${ext}`;
+        const { error: uploadError } = await supabase.storage
+          .from("grievance-photos")
+          .upload(filePath, blob, { contentType: blob.type, upsert: false });
+        if (!uploadError) {
+          const { data: urlData } = supabase.storage
+            .from("grievance-photos")
+            .getPublicUrl(filePath);
+          imageUrl = urlData?.publicUrl ?? null;
+        } else {
+          console.warn("Image upload failed:", uploadError.message);
+        }
+      } catch (e) {
+        console.warn("Image upload error:", e);
       }
     }
 
@@ -127,14 +152,32 @@ function FileComplaint() {
       status: "Filed",
       risk_score: 6,
       sla_days: 7,
+      image_url: imageUrl,
     }).select("ref_code").single();
     
     if (error) {
       console.error("Supabase Submission Error:", error);
-      // Optional: show toast error here
     }
-    
-    if (!error && data?.ref_code) setRefCode(data.ref_code);
+
+    if (!error && data?.ref_code) {
+      const finalRefCode = data.ref_code;
+      setRefCode(finalRefCode);
+
+      // Send SMS — fire and show toast based on result
+      const mobile = user.user_metadata?.mobile as string | undefined;
+      console.log("[Complaint] User mobile from metadata:", mobile ?? "NOT FOUND");
+
+      sendComplaintRegisteredSms(mobile, finalRefCode).then((result) => {
+        if (result.success) {
+          toast.success(`📱 SMS sent to ${mobile?.slice(0, 5)}*****`);
+        } else if (result.error === "No mobile number") {
+          toast.warning("No mobile number found in your profile — SMS not sent.");
+        } else if (result.error !== "SMS key not configured") {
+          toast.error(`SMS failed: ${result.error}`);
+        }
+      });
+    }
+
     setIsSubmitting(false);
     setStep(2);
   };
@@ -192,8 +235,9 @@ function FileComplaint() {
     setAnalysis(result);
   };
 
-  const handleChatReady = (fullTranscript: string) => {
+  const handleChatReady = (fullTranscript: string, chatPhoto?: string | null) => {
     setText(fullTranscript);
+    if (chatPhoto) setPhoto(chatPhoto);
     handleAnalyse(fullTranscript);
   };
 
@@ -221,6 +265,7 @@ function FileComplaint() {
                   <VoiceWidget 
                     onTranscript={setText} 
                     onCallEnd={handleAnalyse}
+                    onPhotoChange={setPhoto}
                   />
                 </div>
               </div>

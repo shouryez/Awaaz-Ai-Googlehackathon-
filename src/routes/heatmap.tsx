@@ -6,7 +6,7 @@ import { AI_INSIGHTS, GRIEVANCES } from "@/data/mock";
 import { CityMap } from "@/components/app/CityMap";
 
 export const Route = createFileRoute("/heatmap")({
-  head: () => ({ meta: [{ title: "City Heatmap — JanSevaAI" }, { name: "description", content: "Live citywide grievance intelligence." }] }),
+  head: () => ({ meta: [{ title: "City Heatmap — AwaazAI" }, { name: "description", content: "Live citywide grievance intelligence." }] }),
   component: Heatmap,
 });
 

@@ -79,7 +79,7 @@ function Dashboard() {
                   <CartesianGrid stroke="rgba(59,125,232,0.08)" vertical={false} />
                   <XAxis dataKey="type" stroke="#94a3b8" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
                   <YAxis stroke="#94a3b8" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
-                  <Tooltip cursor={{ fill: "rgba(59,125,232,0.06)" }} contentStyle={{ background: "rgba(7,15,43,0.95)", border: "1px solid rgba(59,125,232,0.3)", borderRadius: 12, backdropFilter: "blur(12px)" }} />
+                  <Tooltip cursor={{ fill: "rgba(99,102,241,0.06)" }} contentStyle={{ background: "var(--popover)", border: "1px solid var(--glass-border)", borderRadius: 12, color: "var(--text-primary)" }} labelStyle={{ color: "var(--text-primary)" }} itemStyle={{ color: "var(--text-secondary)" }} />
                   <Bar dataKey="count" fill="url(#barGrad)" radius={[8,8,0,0]} animationDuration={900} />
                 </BarChart>
               </ResponsiveContainer>
@@ -116,6 +116,52 @@ function Dashboard() {
       </div>
 
       <motion.div variants={fadeUp}>
+        {/* ── Rewards Highlight Banner ── */}
+        <div className="relative overflow-hidden rounded-2xl p-6 md:p-8 mb-6"
+          style={{ background: "linear-gradient(135deg, rgba(99,102,241,0.12) 0%, rgba(245,158,11,0.08) 50%, rgba(99,102,241,0.04) 100%)", border: "1px solid rgba(245,158,11,0.2)" }}>
+          <div className="absolute -top-10 -right-10 h-48 w-48 rounded-full pointer-events-none" style={{ background: "radial-gradient(circle, rgba(245,158,11,0.18) 0%, transparent 70%)", animation: "orb-drift-2 8s ease-in-out infinite alternate" }} />
+          <div className="absolute -bottom-10 -left-10 h-40 w-40 rounded-full pointer-events-none" style={{ background: "radial-gradient(circle, rgba(99,102,241,0.12) 0%, transparent 70%)", animation: "orb-drift-1 10s ease-in-out infinite alternate" }} />
+
+          <div className="relative z-10 flex flex-col lg:flex-row items-start lg:items-center gap-6">
+            <div className="flex-1">
+              <div className="inline-flex items-center gap-2 text-xs uppercase tracking-widest text-amber-400 mb-3">
+                <span className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-pulse" /> Citizen Rewards Programme
+              </div>
+              <h3 className="font-display font-extrabold text-2xl md:text-3xl leading-tight">
+                File complaints.<br />
+                <span style={{ background: "linear-gradient(135deg, #FCD34D, #F59E0B, #818CF8)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Earn XP. Get rewarded.</span>
+              </h3>
+              <p className="mt-2 text-sm text-[var(--text-secondary)] max-w-md">
+                Every verified complaint earns you XP. Level up, unlock vouchers, and become a Jan Nayak — a true champion of your city.
+              </p>
+              <div className="mt-4 flex flex-wrap gap-3">
+                <Link to="/rewards" className="inline-flex items-center gap-2 px-5 h-10 rounded-xl text-sm font-semibold text-white"
+                  style={{ background: "linear-gradient(135deg, #D97706, #F59E0B)", boxShadow: "0 0 20px rgba(245,158,11,0.25)" }}>
+                  ⚡ View My Rewards
+                </Link>
+                <Link to="/file-complaint" className="inline-flex items-center gap-2 px-5 h-10 rounded-xl text-sm font-semibold glass">
+                  + File a Complaint
+                </Link>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-2 flex-shrink-0 w-full lg:w-auto lg:min-w-[320px]">
+              {[
+                { icon: "🌱", level: "Naya Nagarik", xp: "0–199 XP",   color: "#10b981", bg: "rgba(16,185,129,0.1)" },
+                { icon: "🏅", level: "Nagarik",      xp: "200–499 XP", color: "#818CF8", bg: "rgba(99,102,241,0.1)" },
+                { icon: "⚡", level: "Seva Veer",    xp: "500–999 XP", color: "#F59E0B", bg: "rgba(245,158,11,0.1)" },
+                { icon: "👑", level: "Jan Nayak",    xp: "1000+ XP",   color: "#ef4444", bg: "rgba(239,68,68,0.1)" },
+              ].map((tier) => (
+                <div key={tier.level} className="rounded-xl px-3 py-2.5 text-center transition-transform hover:scale-105 cursor-default"
+                  style={{ background: tier.bg, border: `1px solid ${tier.color}44` }}>
+                  <div className="text-lg mb-0.5">{tier.icon}</div>
+                  <div className="text-xs font-bold" style={{ color: tier.color }}>{tier.level}</div>
+                  <div className="text-[10px] font-mono text-[var(--text-secondary)]">{tier.xp}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
         <div className="flex items-baseline justify-between mb-3 px-1">
           <h3 className="font-display font-bold text-xl">Quick file by category</h3>
           <Link to="/file-complaint" className="text-xs text-[var(--color-blue-300)] hover:underline">All categories →</Link>
@@ -136,6 +182,7 @@ function Dashboard() {
           })}
         </div>
       </motion.div>
+
     </motion.div>
   );
 }
